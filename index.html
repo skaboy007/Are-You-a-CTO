@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tech Role Odyssey</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        #content {
+            max-width: 800px;
+            margin: 100px auto;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            background-color: #1f1f1f;
+            border: none;
+            color: #e0e0e0;
+            padding: 15px 30px;
+            font-size: 1em;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .button:hover {
+            background-color: #333333;
+        }
+
+        #question,
+        #outcome {
+            display: none;
+        }
+
+        .fade {
+            animation: fadeEffect 0.5s;
+        }
+
+        @keyframes fadeEffect {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        #restartButton {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="content">
+        <div id="intro">
+            <h1>Welcome to the Ultimate Tech Role Odyssey!</h1>
+            <p>Think you've got what it takes to survive in the tech jungle? Let's find out!</p>
+            <button class="button" id="startButton">Start</button>
+        </div>
+
+        <div id="question">
+            <h1 id="questionText"></h1>
+            <button class="button" id="yesButton">Yes</button>
+            <button class="button" id="noButton">No</button>
+        </div>
+
+        <div id="outcome">
+            <h1 id="outcomeText"></h1>
+            <p>Thanks for playing! Ready to try again?</p>
+            <button class="button" id="restartButton">Restart</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz Data
+        const quiz = {
+            start: {
+                text: "So, you think you're the mastermind behind all tech meetings?",
+                yes: 'q2',
+                no: 'q15'
+            },
+            q2: {
+                text: "Do you prefer steering the ship while everyone else paddles?",
+                yes: 'q3',
+                no: 'q8'
+            },
+            q3: {
+                text: "Is drawing big pictures and letting others fill in the details your specialty?",
+                yes: 'q4',
+                no: 'q5'
+            },
+            q4: {
+                text: "Do you casually refer to yourself as a 'visionary' without laughing?",
+                yes: 'q6',
+                no: 'q5'
+            },
+            q5: {
+                text: "Do you enjoy untangling the 'organized chaos' others call infrastructure?",
+                yes: 'q9',
+                no: 'q10'
+            },
+            q6: {
+                text: "Does aligning business mumbo jumbo with tech jargon excite you?",
+                yes: 'q7',
+                no: 'q10'
+            },
+            q7: {
+                text: "Can you translate 'synergy' into actual English?",
+                yes: 'outcome_cio',
+                no: 'q10'
+            },
+            q8: {
+                text: "Do you lead a team of code wizards while pretending to understand their magic?",
+                yes: 'q11',
+                no: 'q15'
+            },
+            q9: {
+                text: "Are you the silent guardian keeping the servers alive while no one notices?",
+                yes: 'outcome_it_manager',
+                no: 'q10'
+            },
+            q10: {
+                text: "Do you love setting impossible deadlines and watching the chaos unfold?",
+                yes: 'q12',
+                no: 'q13'
+            },
+            q11: {
+                text: "Do you still write code like it's the 90s and you're proud of it?",
+                yes: 'q14',
+                no: 'q12'
+            },
+            q12: {
+                text: "Is 'herding cats' an accurate job description for you?",
+                yes: 'q16',
+                no: 'q13'
+            },
+            q13: {
+                text: "Do you enjoy turning vague ideas into something that might actually work?",
+                yes: 'q17',
+                no: 'q15'
+            },
+            q14: {
+                text: "Do you use code reviews as a chance to showcase your superior intellect?",
+                yes: 'outcome_lead_developer',
+                no: 'q12'
+            },
+            q15: {
+                text: "Do you wield code like a wizard casts spells?",
+                yes: 'q18',
+                no: 'q30'
+            },
+            q16: {
+                text: "Do you juggle timelines, resources, and your sanity daily?",
+                yes: 'outcome_project_manager',
+                no: 'q13'
+            },
+            q17: {
+                text: "Is turning 'I want an app' into reality your idea of fun?",
+                yes: 'outcome_product_manager',
+                no: 'q15'
+            },
+            q18: {
+                text: "Do you prefer impressing users with flashy interfaces over complex logic?",
+                yes: 'q19',
+                no: 'q22'
+            },
+            q19: {
+                text: "Is making pixels perfect your life's calling?",
+                yes: 'q20',
+                no: 'q21'
+            },
+            q20: {
+                text: "Do you argue over the 'correct' shade of #FF5733 with designers?",
+                yes: 'outcome_ui_ux_designer',
+                no: 'outcome_frontend_developer'
+            },
+            q21: {
+                text: "Do you enjoy making websites that only work in outdated browsers?",
+                yes: 'outcome_frontend_developer',
+                no: 'q22'
+            },
+            q22: {
+                text: "Do you venture into the mysterious abyss known as the back-end?",
+                yes: 'q23',
+                no: 'q26'
+            },
+            q23: {
+                text: "Do you communicate with databases more than actual people?",
+                yes: 'q24',
+                no: 'q25'
+            },
+            q24: {
+                text: "Are APIs your love language?",
+                yes: 'outcome_backend_developer',
+                no: 'q25'
+            },
+            q25: {
+                text: "Is 'Have you tried turning it off and on again?' your go-to solution?",
+                yes: 'outcome_system_administrator',
+                no: 'q26'
+            },
+            q26: {
+                text: "Do you dabble equally in front-end glitter and back-end guts?",
+                yes: 'q27',
+                no: 'q30'
+            },
+            q27: {
+                text: "Is being a jack-of-all-trades and master of none your thing?",
+                yes: 'q28',
+                no: 'q30'
+            },
+            q28: {
+                text: "Do you thrive on switching contexts like it's an extreme sport?",
+                yes: 'outcome_fullstack_developer',
+                no: 'q29'
+            },
+            q29: {
+                text: "Do you believe specialization is overrated?",
+                yes: 'outcome_software_engineer',
+                no: 'q30'
+            },
+            q30: {
+                text: "Do you consume data for breakfast, lunch, and dinner?",
+                yes: 'q31',
+                no: 'q35'
+            },
+            q31: {
+                text: "Can you predict trends better than a crystal ball?",
+                yes: 'q32',
+                no: 'q33'
+            },
+            q32: {
+                text: "Is machine learning your playground?",
+                yes: 'outcome_data_scientist',
+                no: 'q33'
+            },
+            q33: {
+                text: "Do you prefer crunching numbers without the AI fanfare?",
+                yes: 'outcome_data_analyst',
+                no: 'q34'
+            },
+            q34: {
+                text: "Are you secretly teaching computers to outsmart us all?",
+                yes: 'outcome_machine_learning_engineer',
+                no: 'q35'
+            },
+            q35: {
+                text: "Do you prevent code disasters before they happen?",
+                yes: 'q36',
+                no: 'q38'
+            },
+            q36: {
+                text: "Do you automate everything because manual is so last decade?",
+                yes: 'q37',
+                no: 'q38'
+            },
+            q37: {
+                text: "Is 'CI/CD' more than just alphabet soup to you?",
+                yes: 'outcome_devops_engineer',
+                no: 'q38'
+            },
+            q38: {
+                text: "Do you battle bugs with the fervor of a knight slaying dragons?",
+                yes: 'q39',
+                no: 'q40'
+            },
+            q39: {
+                text: "Do you write tests that break just to mess with developers?",
+                yes: 'outcome_qa_engineer',
+                no: 'outcome_test_automation_engineer'
+            },
+            q40: {
+                text: "Are you the hero everyone calls when things fall apart?",
+                yes: 'q41',
+                no: 'q43'
+            },
+            q41: {
+                text: "Do you enjoy dealing with people over machines (most days)?",
+                yes: 'q42',
+                no: 'q43'
+            },
+            q42: {
+                text: "Do you find joy in asking 'Did you try turning it off and on again?'",
+                yes: 'outcome_technical_support_specialist',
+                no: 'outcome_helpdesk_technician'
+            },
+            q43: {
+                text: "Are you secretly building the next big thing in your garage?",
+                yes: 'q44',
+                no: 'q45'
+            },
+            q44: {
+                text: "Do you believe startups are the spice of life?",
+                yes: 'outcome_entrepreneur',
+                no: 'outcome_innovator'
+            },
+            q45: {
+                text: "Still figuring out what you want to be when you grow up?",
+                yes: 'outcome_explorer',
+                no: 'q46'
+            },
+            q46: {
+                text: "Do you tinker with tech just for the fun of it?",
+                yes: 'q47',
+                no: 'outcome_non_tech_adventurer'
+            },
+            q47: {
+                text: "Do your DIY gadgets make your friends question your sanity?",
+                yes: 'outcome_maker',
+                no: 'outcome_hobbyist'
+            },
+
+            // Outcomes
+            outcome_cio: {
+                text: "🎉 You're the Chief Information Officer (CIO)! Bridging business babble and tech talk is your superpower!"
+            },
+            outcome_it_manager: {
+                text: "🎉 You're the IT Manager! The unsung hero keeping everything running while others take the credit!"
+            },
+            outcome_lead_developer: {
+                text: "🎉 You're the Lead Developer! The code czar everyone fears and respects!"
+            },
+            outcome_project_manager: {
+                text: "🎉 You're the Project Manager! Master of timelines, budgets, and impossible expectations!"
+            },
+            outcome_product_manager: {
+                text: "🎉 You're the Product Manager! Turning wild ideas into profitable realities is your jam!"
+            },
+            outcome_frontend_developer: {
+                text: "🎉 You're a Front-end Developer! Crafting the shiny interfaces users adore (or complain about)!"
+            },
+            outcome_ui_ux_designer: {
+                text: "🎉 You're a UX/UI Designer! Making users' lives easier one pixel at a time!"
+            },
+            outcome_backend_developer: {
+                text: "🎉 You're a Back-end Developer! The hidden genius behind every functional app!"
+            },
+            outcome_system_administrator: {
+                text: "🎉 You're a System Administrator! The gatekeeper of uptime and server sanity!"
+            },
+            outcome_fullstack_developer: {
+                text: "🎉 You're a Full-stack Developer! The Swiss Army knife of the coding world!"
+            },
+            outcome_software_engineer: {
+                text: "🎉 You're a Software Engineer! Architect of complex solutions and elegant code!"
+            },
+            outcome_data_scientist: {
+                text: "🎉 You're a Data Scientist! Turning data into insights like a modern-day alchemist!"
+            },
+            outcome_data_analyst: {
+                text: "🎉 You're a Data Analyst! Finding needles in haystacks is just another day for you!"
+            },
+            outcome_machine_learning_engineer: {
+                text: "🎉 You're a Machine Learning Engineer! Teaching machines to learn so you don't have to!"
+            },
+            outcome_devops_engineer: {
+                text: "🎉 You're a DevOps Engineer! Bridging the gap between development and operations with style!"
+            },
+            outcome_qa_engineer: {
+                text: "🎉 You're a QA Engineer! The last line of defense against catastrophic failures!"
+            },
+            outcome_test_automation_engineer: {
+                text: "🎉 You're a Test Automation Engineer! Making sure robots do the tedious work for us!"
+            },
+            outcome_technical_support_specialist: {
+                text: "🎉 You're a Technical Support Specialist! The hero users need but don't deserve!"
+            },
+            outcome_helpdesk_technician: {
+                text: "🎉 You're a Help Desk Technician! Guiding the lost through their tech troubles!"
+            },
+            outcome_entrepreneur: {
+                text: "🎉 You're an Entrepreneur! Fearlessly forging new paths in the tech wilderness!"
+            },
+            outcome_innovator: {
+                text: "🎉 You're an Innovator! Bringing fresh ideas to life with flair!"
+            },
+            outcome_explorer: {
+                text: "🎉 You're an Explorer! Boldly navigating the unknown in search of your passion!"
+            },
+            outcome_maker: {
+                text: "🎉 You're a Maker! Building gadgets that defy expectations (and maybe logic)!"
+            },
+            outcome_hobbyist: {
+                text: "🎉 You're a Hobbyist! Embracing tech for the pure joy of it!"
+            },
+            outcome_non_tech_adventurer: {
+                text: "🎉 You're a Non-Tech Adventurer! Charting a unique course outside the tech bubble!"
+            }
+        };
+
+        // Variables
+        let currentQuestion = 'start';
+
+        // Elements
+        const intro = document.getElementById('intro');
+        const questionDiv = document.getElementById('question');
+        const outcomeDiv = document.getElementById('outcome');
+        const questionText = document.getElementById('questionText');
+        const yesButton = document.getElementById('yesButton');
+        const noButton = document.getElementById('noButton');
+        const outcomeText = document.getElementById('outcomeText');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+
+        // Event Listeners
+        startButton.addEventListener('click', startQuiz);
+        yesButton.addEventListener('click', () => handleAnswer('yes'));
+        noButton.addEventListener('click', () => handleAnswer('no'));
+        restartButton.addEventListener('click', restartQuiz);
+
+        // Functions
+        function startQuiz() {
+            intro.style.display = 'none';
+            currentQuestion = 'start';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = quiz[currentQuestion];
+            if (q.text) {
+                questionText.textContent = q.text;
+                questionDiv.classList.add('fade');
+                questionDiv.style.display = 'block';
+                outcomeDiv.style.display = 'none';
+            } else {
+                showOutcome(q.text);
+            }
+        }
+
+        function handleAnswer(answer) {
+            const next = quiz[currentQuestion][answer];
+            if (next.startsWith('outcome')) {
+                showOutcome(quiz[next].text);
+            } else {
+                currentQuestion = next;
+                showQuestion();
+            }
+        }
+
+        function showOutcome(text) {
+            questionDiv.style.display = 'none';
+            outcomeText.textContent = text;
+            outcomeDiv.classList.add('fade');
+            outcomeDiv.style.display = 'block';
+        }
+
+        function restartQuiz() {
+            outcomeDiv.style.display = 'none';
+            intro.style.display = 'block';
+        }
+    </script>
+
+</body>
+
+</html>
